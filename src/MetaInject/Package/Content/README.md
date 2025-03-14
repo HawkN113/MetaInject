@@ -1,13 +1,8 @@
-# MetaInject
+# MetaInject 
 
-![Nuget](https://img.shields.io/nuget/v/MetaInject?label=MetaInject)
-![GitHub license](https://img.shields.io/github/license/HawkN113/MetaInject)
-
-| ![MetaInject](docs/img/MetaInject.png) | MetaInject is a simple and powerful Dependency Injection (DI) tool for .NET. With the `[MetaInject]` attribute, you can inject dependencies directly into properties or fields without needing a constructor. The `[MetaValidation]` attribute ensures that your DI setup is correct before the application starts. MetaInject works seamlessly with ASP.NET Core and other .NET projects, simplifying dependency management. It supports `.InjectMetaProperties()` extension to resolve DI inside the service. It also supports conditional service registration via `.AddTransient`, `.AddSingleton`, and `.AddScoped`. |
-|----------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+MetaInject is a simple and powerful Dependency Injection (DI) tool for .NET. With the `[MetaInject]` attribute, you can inject dependencies directly into properties or fields without needing a constructor. The `[MetaValidation]` attribute ensures that your DI setup is correct before the application starts. MetaInject works seamlessly with ASP.NET Core and other .NET projects, simplifying dependency management. It supports `.InjectMetaProperties()` extension to resolve DI inside the service. It also supports conditional service registration via `.AddTransient`, `.AddSingleton`, and `.AddScoped`.
 
 ## Features
-
 - **[MetaInject] attribute**: Enables property injection, allowing dependencies to be injected into properties instead of using constructors.
 - **[MetaValidation] attribute**: Ensures all dependencies are properly injected during application startup.
 - **.InjectMetaProperties() extension**: Allows DI resolution inside the service.
@@ -17,22 +12,6 @@
 ---
 
 ## Getting Started
-
-### Installation
-
-To install the latest version of the `MetaInject` NuGet package:
-
-```bash
-Install-Package MetaInject --version 8.0.0
-```
-
-or via .NET CLI:
-
-```bash
-dotnet add package MetaInject --version 8.0.0
-```
-
----
 
 ### Prerequisites
 
@@ -45,7 +24,6 @@ dotnet add package MetaInject --version 8.0.0
 Use the following namespaces:
 
 ```csharp
-using MetaInject.Core.Attributes;
 using MetaInject.Extensions;
 using MetaInject.Middlewares;
 ```

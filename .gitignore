@@ -1,6 +1,8 @@
 **/.idea/*
 src/MetaInject.Common/obj/**
 src/MetaInject.Common/bin/**
+src/MetaInject.Core/obj/**
+src/MetaInject.Core/bin/**
 src/MetaInject/obj/**
 src/MetaInject/bin/**
 src/MetaInject.Package/obj/**
@@ -13,6 +15,8 @@ src/tests/MetaInject.Tests/obj/**
 
 src/samples/MetaInject.Console/bin/**
 src/samples/MetaInject.Console/obj/**
+src/samples/MetaInject.WebApi/bin/**
+src/samples/MetaInject.WebApi/obj/**
 
 src/NuGetPackages/**
 
