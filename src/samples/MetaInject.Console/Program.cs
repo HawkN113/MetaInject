@@ -8,38 +8,31 @@ using var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services.AddSingleton<ILoggerService, LoggerService>();
-
-        var clientNumber = 1;
-
-        services
-            .AddTransient<IClientService, ClientService1>(() => clientNumber == 1)
-            .AddTransient<IClientService, ClientService2>(() => clientNumber == 2);
-
         services.AddScoped<IAddressService, AddressService>();
-        services.AddScoped<IAddressService1, AddressService1>();
-        services.AddScoped<UserService, UserService>();
+        services.AddTransient<IUserService, UserService>();
+        services.AddTransient<IClientService, ClientService>();
+
+        services.AddMetaInject();
     })
     .Build();
 try
 {
-    // Use MetaInject functionality (should be first in the order to register DI correctly)
-    host.UseMetaInject();
+    var userService = host.Services
+        .GetRequiredService<IUserService>();
     
-    var userService1 = host.Services
-        .GetRequiredService<UserService>()
-        .InjectMetaProperties();
-    
-    var addressService1 = host.Services
-        .GetRequiredService<IAddressService1>()
-        .InjectMetaProperties();
+    var addressService = host.Services
+        .GetRequiredService<IAddressService>();
     
     var clientService = host.Services
-        .GetRequiredService<IClientService>()
-        .InjectMetaProperties();
+        .GetRequiredService<IClientService>();
+    
+    var logService = host.Services
+        .GetRequiredService<ILoggerService>();
     
     clientService.Start();
-    userService1.DoWork();
-    addressService1.Start1();
+    var account = await userService.GetCurrentUserAsync();
+    var address = addressService.GetAddressByAccount(account);
+    logService.LogInfo($"Account: {account}, Address: {address}");
 
     await host.RunAsync();
 }

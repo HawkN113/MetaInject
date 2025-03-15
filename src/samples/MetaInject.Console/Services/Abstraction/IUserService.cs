@@ -2,5 +2,5 @@
 
 public interface IUserService
 {
-    void DoWork();
+    Task<string> GetCurrentUserAsync();
 }

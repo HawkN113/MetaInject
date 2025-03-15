@@ -2,15 +2,14 @@
 using MetaInject.WebApi.Services.Abstraction;
 namespace MetaInject.WebApi.Services;
 
-[MetaValidation]
-internal sealed class UserService : IUserService
+public class UserService : IUserService
 {
-    [MetaInject]
-    public IGreetingService GreetingService;
+    [MetaInject] public virtual IGreetingService GreetingService { get; set; }
 
     public string GetCurrent()
     {
         return GreetingService.Greet("Current user");
     }
+
     public string CurrentInfo() => "User service info";
 }

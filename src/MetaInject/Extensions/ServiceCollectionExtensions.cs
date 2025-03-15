@@ -1,114 +1,72 @@
 ﻿using System.Reflection;
 using MetaInject.Core.Attributes;
-using MetaInject.Models;
-using MetaInject.Processors;
-using MetaInject.Processors.Abstractions;
+using MetaInject.Interceptors;
+using Castle.DynamicProxy;
+using MetaInject.Interceptors.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 namespace MetaInject.Extensions;
 
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Conditionally registers a scoped service of type <typeparamref name="TService"/> 
-    /// with an implementation of <typeparamref name="TImplementation"/> in the dependency injection container.
+    /// Registers dependencies with support for the <see cref="MetaInjectAttribute"/>.
+    /// Automatically creates proxy objects for classes with virtual properties marked with <see cref="MetaInjectAttribute"/>.
     /// </summary>
-    /// <typeparam name="TService">The service type to register.</typeparam>
-    /// <typeparam name="TImplementation">The implementation type of the service.</typeparam>
-    /// <param name="services">The service collection.</param>
-    /// <param name="condition">If true, the service is registered; otherwise, it is skipped.</param>
-    /// <returns>The modified service collection.</returns>
-    public static IServiceCollection AddScoped<TService, TImplementation>(this IServiceCollection services,
-        Func<bool> condition)
-        where TService : class
-        where TImplementation : class, TService
-    {
-        ArgumentNullException.ThrowIfNull(condition);
-        if (condition())
-            services.AddScoped<TService, TImplementation>();
-        return services;
-    }
-
-    /// <summary>
-    /// Conditionally registers a singleton service of type <typeparamref name="TService"/> 
-    /// with an implementation of <typeparamref name="TImplementation"/> in the dependency injection container.
-    /// </summary>
-    /// <typeparam name="TService">The service type to register.</typeparam>
-    /// <typeparam name="TImplementation">The implementation type of the service.</typeparam>
-    /// <param name="services">The service collection.</param>
-    /// <param name="condition">A function that returns true if the service should be registered; otherwise, false.</param>
-    /// <returns>The modified service collection.</returns>
-    public static IServiceCollection AddSingleton<TService, TImplementation>(this IServiceCollection services,
-        Func<bool> condition)
-        where TService : class
-        where TImplementation : class, TService
-    {
-        ArgumentNullException.ThrowIfNull(condition);
-        if (condition())
-            services.AddSingleton<TService, TImplementation>();
-        return services;
-    }
-
-    /// <summary>
-    /// Conditionally registers a transient service of type <typeparamref name="TService"/> 
-    /// with an implementation of <typeparamref name="TImplementation"/> in the dependency injection container.
-    /// </summary>
-    /// <typeparam name="TService">The service type to register.</typeparam>
-    /// <typeparam name="TImplementation">The implementation type of the service.</typeparam>
-    /// <param name="services">The service collection.</param>
-    /// <param name="condition">A function that returns true if the service should be registered; otherwise, false.</param>
-    /// <returns>The modified service collection.</returns>
-    public static IServiceCollection AddTransient<TService, TImplementation>(this IServiceCollection services,
-        Func<bool> condition)
-        where TService : class
-        where TImplementation : class, TService
-    {
-        ArgumentNullException.ThrowIfNull(condition);
-        if (condition())
-            services.AddTransient<TService, TImplementation>();
-        return services;
-    }
-
-    /// <summary>
-    /// Add Meta inject
-    /// </summary>
-    /// <param name="services"></param>
-    /// <returns></returns>
+    /// <param name="services">The DI container's service collection.</param>
+    /// <returns>The updated service collection.</returns>
     public static IServiceCollection AddMetaInject(this IServiceCollection services)
     {
-        var serviceList = new HashSet<ServiceDescription>();
-        var validationList = new HashSet<ServiceValidation>();
+        services.AddSingleton<IMetaInjectInterceptor, MetaInjectInterceptor>();
+        services.AddSingleton<IProxyGenerator, ProxyGenerator>();
 
         foreach (var service in services.ToArray())
         {
-            serviceList.Add(new ServiceDescription(service.ServiceType.FullName!, service.Lifetime));
-
             if (service.ImplementationType == null)
                 continue;
 
-            var isValidatable = service.ImplementationType.IsDefined(typeof(MetaValidationAttribute), inherit: false);
+            var isInjectable = service.ImplementationType
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Any(prop => prop.IsDefined(typeof(MetaInjectAttribute), true) &&
+                             prop is
+                             {
+                                 CanRead: true, CanWrite: true, GetMethod.IsVirtual: true, SetMethod.IsVirtual: true
+                             });
 
-            if (!isValidatable)
+            if (!isInjectable)
                 continue;
 
-            var propertyTypes = service.ImplementationType
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.IsDefined(typeof(MetaInjectAttribute)))
-                .Select(p => new ItemServiceType(p.Name, p.PropertyType.FullName!))
-                .ToArray();
-
-            var fieldTypes = service.ImplementationType
-                .GetFields(BindingFlags.Public | BindingFlags.Instance)
-                .Where(f => f.IsDefined(typeof(MetaInjectAttribute)))
-                .Select(f => new ItemServiceType(f.Name, f.FieldType.FullName!))
-                .ToArray();
-
-            validationList.Add(new ServiceValidation(service.ServiceType.FullName!, propertyTypes, fieldTypes));
+            services.Remove(service);
+            services.Add(service.Lifetime, service.ServiceType,
+                provider => CreateProxy(provider, service.ImplementationType));
         }
 
-        services.AddSingleton(serviceList);
-        services.AddSingleton(validationList);
-        services.AddTransient<IPropertyInjectProcessor, PropertyInjectProcessor>();
-
         return services;
+    }
+
+    private static object CreateProxy(IServiceProvider provider, Type implementationType)
+    {
+        var implementation = ActivatorUtilities.CreateInstance(provider, implementationType);
+        var interceptor = provider.GetRequiredService<IMetaInjectInterceptor>();
+        var proxyGenerator = provider.GetRequiredService<IProxyGenerator>();
+        return proxyGenerator.CreateClassProxyWithTarget(implementationType, implementation, interceptor);
+    }
+
+    private static void Add(this IServiceCollection services, ServiceLifetime lifetime, Type serviceType,
+        Func<IServiceProvider, object> factory)
+    {
+        switch (lifetime)
+        {
+            case ServiceLifetime.Transient:
+                services.AddTransient(serviceType, factory);
+                break;
+            case ServiceLifetime.Scoped:
+                services.AddScoped(serviceType, factory);
+                break;
+            case ServiceLifetime.Singleton:
+                services.AddSingleton(serviceType, factory);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(lifetime), lifetime, null);
+        }
     }
 }

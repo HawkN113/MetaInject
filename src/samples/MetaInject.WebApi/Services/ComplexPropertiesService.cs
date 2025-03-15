@@ -3,13 +3,12 @@ using MetaInject.Core.Attributes;
 using MetaInject.WebApi.Services.Abstraction;
 namespace MetaInject.WebApi.Services;
 
-[MetaValidation]
 public class ComplexPropertiesService : IComplexPropertiesService
 {
-    [MetaInject] public required IUserService UserService { get; init; }
-    [MetaInject] public required IAddressService AddressService { get; init; }
-    [MetaInject] public required INotesService NotesService { get; init; }
-    [MetaInject] public required IContractService ContractService { get; init; }
+    [MetaInject] public virtual IUserService UserService { get; set; }
+    [MetaInject] public virtual IAddressService AddressService { get; set; }
+    [MetaInject] public virtual INotesService NotesService { get; set; }
+    [MetaInject] public virtual IContractService ContractService { get; set; }
 
     public string GetCurrentInfo()
     {

@@ -2,5 +2,5 @@
 
 public interface IAddressService
 {
-    void Start();
+    string GetAddressByAccount(string account);
 }

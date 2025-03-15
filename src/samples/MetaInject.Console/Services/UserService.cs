@@ -1,19 +1,18 @@
 ﻿using MetaInject.Console.Services.Abstraction;
 using MetaInject.Core.Attributes;
+using Microsoft.Extensions.Logging;
+
 namespace MetaInject.Console.Services;
 
 public class UserService: IUserService
 {
-    [MetaInject]
-    public IAddressService AddressService { get; init; }
-    
-    [MetaInject]
-    public required IAddressService1 AddressService1 { get; init; }
+    [MetaInject] public virtual required ILoggerService LoggerService { get; init; }
+    [MetaInject] public virtual ILogger<UserService> Logger { get; set; }
 
-    public void DoWork()
+    public async Task<string> GetCurrentUserAsync()
     {
-        System.Console.WriteLine("UserService is doing work!");
-        AddressService.Start();
-        AddressService1.Start1();
+        var userAccount = "1234567890";
+        LoggerService.LogInfo($"Account: {userAccount}");
+        return await Task.FromResult(userAccount);
     }
 }

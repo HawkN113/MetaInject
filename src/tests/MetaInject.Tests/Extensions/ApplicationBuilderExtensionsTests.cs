@@ -51,7 +51,7 @@ public class ApplicationBuilderExtensionsTests
         // Act & Assert
         var ex = Assert.Throws<ArgumentNullException>(() => _appBuilderMock.Object.UseMetaValidation());
         Assert.Equal("IMyService", ex.ParamName);
-        Assert.Contains("Service MyServiceProperty is not registered.", ex.Message);
+        Assert.Contains("No service for type 'MyServiceProperty' is registered in the service provider.", ex.Message);
     }
 
     [Fact]

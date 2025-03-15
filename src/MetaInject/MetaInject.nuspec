@@ -6,7 +6,7 @@
         <title>MetaInject</title>
         <authors>Nikolay Selyutin (HawkN113)</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>MetaInject is a simple and powerful Dependency Injection (DI) tool for .NET. With the `[MetaInject]` attribute, you can inject dependencies directly into properties or fields without needing a constructor. The `[MetaValidation]` attribute ensures that your DI setup is correct before the application starts. MetaInject works seamlessly with ASP.NET Core and other .NET projects, simplifying dependency management. It supports `.InjectMetaProperties()` extension to resolve DI inside the service. It also supports conditional service registration via `.AddTransient`, `.AddSingleton`, and `.AddScoped`.</description>
+        <description>MetaInject is a simple and powerful Dependency Injection (DI) tool for .NET. With the `[MetaInject]` attribute, you can inject dependencies directly into properties or fields without needing a constructor. MetaInject works seamlessly with ASP.NET Core and other .NET projects, simplifying dependency management.</description>
         <summary>Flexible dependency injection for .NET with attribute-based instance management.</summary>
         <tags>.net8 DependencyInjection DI .NET Core ASP.NET MetaInject IoC</tags>
         <repository type="git" url="https://github.com/HawkN113/MetaInject" branch="main" />
@@ -17,8 +17,6 @@
         <language>en-GB</language>
         <releaseNotes>
             - Added support for .NET 8.0;
-            - Added conditional service registration with `.AddTransient`,`.AddSingleton`,`.AddScoped`;
-            - Added `.InjectMetaProperties()` extension to resolve DI inside the service;
         </releaseNotes>
         <copyright>Copyright © 2025 Nikolay Selyutin (HawkN113)</copyright>
         <dependencies>

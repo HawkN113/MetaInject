@@ -26,6 +26,7 @@
       <DebugType>embedded</DebugType>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="Castle.Core" Version="5.2.1" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
     </ItemGroup>
@@ -33,6 +34,9 @@
       <None Update="Package\Content\MetaInject.ico.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Remove="Processors\**" />
+      <None Remove="Middlewares\**" />
+      <None Remove="Models\**" />
     </ItemGroup>
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -42,6 +46,19 @@
     </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="MetaInject.Tests" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Processors\**" />
+      <Compile Remove="Middlewares\**" />
+      <Compile Remove="Models\**" />
+      <Compile Remove="Extensions\HostExtensions.cs" />
+      <Compile Remove="Extensions\ApplicationBuilderExtensions.cs" />
+      <Compile Remove="Extensions\PropertyInjectorExtensions.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Remove="Processors\**" />
+      <EmbeddedResource Remove="Middlewares\**" />
+      <EmbeddedResource Remove="Models\**" />
     </ItemGroup>
 
 </Project>

@@ -1,12 +1,16 @@
 ﻿using MetaInject.Console.Services.Abstraction;
-using Microsoft.Extensions.Logging;
+using MetaInject.Core.Attributes;
 namespace MetaInject.Console.Services;
 
-public class AddressService(ILogger<AddressService> logger): IAddressService
+public class AddressService: IAddressService
 {
-    public void Start()
+    [MetaInject]
+    public virtual required ILoggerService LoggerService { get; init; }
+
+    public string GetAddressByAccount(string account)
     {
-        System.Console.WriteLine("AddressService is doing work!");
-        logger.LogInformation("AddressService is doing work!");
+        var address = "123 Main St";
+        LoggerService.LogInfo($"Address '{address}' for the account '{account}'");
+        return address;
     }
 }
