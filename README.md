@@ -17,7 +17,7 @@
 
 ### Installation
 
-To install the latest version of the `MetaInject` NuGet package:
+To install the latest version of the `MetaInject` [NuGet package](https://www.nuget.org/packages/MetaInject/):
 
 ```bash
 Install-Package MetaInject --version 8.0.0
