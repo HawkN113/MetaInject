@@ -1,6 +1,7 @@
 # MetaInject
 
 ![Nuget](https://img.shields.io/nuget/v/MetaInject?label=MetaInject)
+![GitHub license](https://img.shields.io/github/license/HawkN113/MetaInject)
 
 | ![MetaInject](docs/img/MetaInject.png) | MetaInject is a simple and powerful Dependency Injection (DI) tool for .NET. With the `[MetaInject]` attribute, you can inject dependencies directly into properties or fields without needing a constructor. MetaInject works seamlessly with ASP.NET Core and other .NET projects, simplifying dependency management.  |
 |----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
