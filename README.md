@@ -20,7 +20,7 @@
 To install the latest version of the `MetaInject` [NuGet package](https://www.nuget.org/packages/MetaInject/):
 
 ```bash
-Install-Package MetaInject --version 8.0.0
+Install-Package MetaInject -Version 8.0.0
 ```
 
 or via .NET CLI:
