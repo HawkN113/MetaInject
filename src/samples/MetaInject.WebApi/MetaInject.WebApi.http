@@ -1,0 +1,6 @@
+@MetaInject.WebApi_HostAddress = http://localhost:5159
+
+GET {{MetaInject.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

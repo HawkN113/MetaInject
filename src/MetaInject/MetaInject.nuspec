@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>MetaInject</id>
+        <version>8.0.0</version>
+        <title>MetaInject</title>
+        <authors>Nikolay Selyutin (HawkN113)</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>MetaInject is a simple and powerful Dependency Injection (DI) tool for .NET. With the `[MetaInject]` attribute, you can inject dependencies directly into properties or fields without needing a constructor. MetaInject works seamlessly with ASP.NET Core and other .NET projects, simplifying dependency management.</description>
+        <summary>Flexible dependency injection for .NET with attribute-based instance management.</summary>
+        <tags>.net8 DependencyInjection dependency-injection DI .NET Core ASP.NET MetaInject IoC</tags>
+        <repository type="git" url="https://github.com/HawkN113/MetaInject" branch="main" />
+        <projectUrl>https://github.com/HawkN113/MetaInject</projectUrl>
+        <license type="expression">MIT</license>
+        <icon>content\MetaInject.ico.png</icon>
+        <readme>content\README.md</readme>
+        <language>en-GB</language>
+        <releaseNotes>
+            - Added support for .NET 8.0;
+        </releaseNotes>
+        <copyright>Copyright © 2025 Nikolay Selyutin (HawkN113)</copyright>
+        <dependencies>
+            <group targetFramework="net8.0">
+                <dependency id="Castle.Core" version="5.2.1" />    
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="bin\Release\net8.0\*" target="lib\net8.0" />
+        <file src="bin\Release\net8.0\Package\Content\MetaInject.ico.png" target="content\MetaInject.ico.png" />
+        <file src="Package\Content\README.md" target="content\README.md" />
+    </files>
+</package>

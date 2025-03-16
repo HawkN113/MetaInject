@@ -1,35 +1,14 @@
-# MetaInject
+# MetaInject 
 
-![Nuget](https://img.shields.io/nuget/v/MetaInject?label=MetaInject)
-![GitHub license](https://img.shields.io/github/license/HawkN113/MetaInject)
-
-| ![MetaInject](docs/img/MetaInject.png) | MetaInject is a simple and powerful Dependency Injection (DI) tool for .NET. With the `[MetaInject]` attribute, you can inject dependencies directly into properties or fields without needing a constructor. MetaInject works seamlessly with ASP.NET Core and other .NET projects, simplifying dependency management.  |
-|----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+MetaInject is a simple and powerful Dependency Injection (DI) tool for .NET. With the `[MetaInject]` attribute, you can inject dependencies directly into properties or fields without needing a constructor. MetaInject works seamlessly with ASP.NET Core and other .NET projects, simplifying dependency management.
 
 ## Features
-
 - **[MetaInject] attribute**: Enables property injection, allowing dependencies to be injected into properties instead of using constructors.
 - **Seamless Web API Integration**: Fully compatible with ASP.NET Core and other .NET-based projects.
 
 ---
 
 ## Getting Started
-
-### Installation
-
-To install the latest version of the `MetaInject` NuGet package:
-
-```bash
-Install-Package MetaInject --version 8.0.0
-```
-
-or via .NET CLI:
-
-```bash
-dotnet add package MetaInject --version 8.0.0
-```
-
----
 
 ### Prerequisites
 
@@ -89,7 +68,7 @@ public class ComplexService : IComplexService
     [MetaInject] public virtual required IContractService ContractService { get; init; }
 }
 ```
-or 
+or
 
 ```csharp
 public class ComplexService : IComplexService
