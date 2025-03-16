@@ -1,218 +1,127 @@
-﻿using MetaInject.Core.Attributes;
+﻿using Castle.DynamicProxy;
+using MetaInject.Core.Attributes;
 using MetaInject.Extensions;
-using MetaInject.Models;
-using MetaInject.Processors.Abstractions;
+using MetaInject.Interceptors.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 namespace MetaInject.Tests.Extensions;
 
-public class ServiceCollectionExtensionsTests
+
+public class ServiceCollectionExtensionsTests()
 {
-    public interface ITestService;
-
-    public class TestService : ITestService;
-
-    public class OtherTestService : ITestService;
-
-    private readonly IServiceCollection _services = new ServiceCollection();
-
-    [MetaValidation]
-    public class MyValidatableService : IMyValidatableService
-    {
-        [MetaInject] public ITestService? InjectedService { get; set; }
-    }
-    
-    public interface IMyValidatableService { }
-    
-    
-    [Fact]
-    public void AddMetaInject_RegistersRequiredServices()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-
-        // Act
-        services.AddMetaInject();
-
-        // Assert
-        var provider = services.BuildServiceProvider();
-        Assert.NotNull(provider.GetService<HashSet<ServiceDescription>>());
-        Assert.NotNull(provider.GetService<HashSet<ServiceValidation>>());
-        Assert.NotNull(provider.GetService<IPropertyInjectProcessor>());
-    }
+    private IServiceCollection _services;
+    private ServiceProvider _provider;
 
     [Fact]
-    public void AddMetaInject_AddsServicesToServiceList()
+    public void AddMetaInject_Should_RegisterInterceptorAndProxyGenerator()
     {
         // Arrange
-        var services = new ServiceCollection();
-        services.AddTransient<ITestService, TestService>();
-
-        // Act
-        services.AddMetaInject();
-        var provider = services.BuildServiceProvider();
-        var serviceList = provider.GetRequiredService<HashSet<ServiceDescription>>();
-
-        // Assert
-        Assert.Contains(serviceList, s => s.ServiceType == typeof(ITestService).FullName);
-    }
-
-    [Fact]
-    public void AddMetaInject_RegistersValidationForMetaValidationAttribute()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-        services.AddTransient<IMyValidatableService, MyValidatableService>();
-
-        // Act
-        services.AddMetaInject();
-        var provider = services.BuildServiceProvider();
-        var validationList = provider.GetRequiredService<HashSet<ServiceValidation>>();
-
-        // Assert
-        Assert.Contains(validationList, v => v.ServiceType == typeof(IMyValidatableService).FullName);
-    }
-    
-    [Fact]
-    public void AddMetaInject_RegistersValidationAndServiceLists()
-    {
-        // Arrange
-        _services.AddScoped<ITestService, TestService>();
+        _services = new ServiceCollection();
+        _services.AddTransient<IDependency, Dependency>();
+        _services.AddTransient<IInjectableService, InjectableService>();
         _services.AddMetaInject();
-        var provider = _services.BuildServiceProvider();
-
+        _provider = _services.BuildServiceProvider();
+        
         // Act
-        var serviceList = provider.GetService<HashSet<ServiceDescription>>();
-        var validationList = provider.GetService<HashSet<ServiceValidation>>();
+        var interceptor = _provider.GetService<IMetaInjectInterceptor>();
+        var proxyGenerator = _provider.GetService<IProxyGenerator>();
 
         // Assert
-        Assert.NotNull(serviceList);
-        Assert.NotEmpty(serviceList);
-        Assert.Contains(serviceList, s => s.ServiceType == typeof(ITestService).FullName);
+        Assert.NotNull(interceptor);
+        Assert.NotNull(proxyGenerator);
+    }
 
-        Assert.NotNull(validationList);
+    [Fact]
+    public void AddMetaInject_Should_CreateProxyForTransientService()
+    {
+        // Arrange
+        _services = new ServiceCollection();
+        _services.AddTransient<IDependency, Dependency>();
+        _services.AddTransient<IInjectableService, InjectableService>();
+        _services.AddMetaInject();
+        _provider = _services.BuildServiceProvider();
+        
+        // Act
+        var service = _provider.GetService<IInjectableService>();
+        
+        // Assert
+        Assert.NotNull(service);
+        Assert.NotNull(service.Dependency);
+        Assert.IsType<Dependency>(service.Dependency);
     }
     
     [Fact]
-    public void AddScoped_ShouldRegisterService_WhenConditionIsTrue()
+    public void AddMetaInject_Should_CreateProxyForScopedService()
     {
         // Arrange
-        var services = new ServiceCollection();
-        var condition = true;
-
+        _services = new ServiceCollection();
+        _services.AddScoped<IDependency, Dependency>();
+        _services.AddScoped<IInjectableService, InjectableService>();
+        _services.AddMetaInject();
+        _provider = _services.BuildServiceProvider();
+        
         // Act
-        services.AddScoped<ITestService, TestService>(() => condition);
-
-        var serviceProvider = services.BuildServiceProvider();
-        var service = serviceProvider.GetService<ITestService>();
-
+        var service = _provider.GetService<IInjectableService>();
+        
         // Assert
         Assert.NotNull(service);
-        Assert.IsType<TestService>(service);
+        Assert.NotNull(service.Dependency);
+        Assert.IsType<Dependency>(service.Dependency);
     }
-
+    
     [Fact]
-    public void AddScoped_ShouldNotRegisterService_WhenConditionIsFalse()
+    public void AddMetaInject_Should_CreateProxyForSingletonService()
     {
         // Arrange
-        var services = new ServiceCollection();
-        var condition = false;
-
+        _services = new ServiceCollection();
+        _services.AddSingleton<IDependency, Dependency>();
+        _services.AddSingleton<IInjectableService, InjectableService>();
+        _services.AddMetaInject();
+        _provider = _services.BuildServiceProvider();
+        
         // Act
-        services.AddScoped<ITestService, TestService>(() => condition);
-
-        var serviceProvider = services.BuildServiceProvider();
-        var service = serviceProvider.GetService<ITestService>();
-
-        // Assert
-        Assert.Null(service);
-    }
-
-    [Fact]
-    public void AddSingleton_ShouldRegisterService_WhenConditionIsTrue()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-        var condition = true;
-
-        // Act
-        services.AddSingleton<ITestService, TestService>(() => condition);
-
-        var serviceProvider = services.BuildServiceProvider();
-        var service = serviceProvider.GetService<ITestService>();
-
+        var service = _provider.GetService<IInjectableService>();
+        
         // Assert
         Assert.NotNull(service);
-        Assert.IsType<TestService>(service);
+        Assert.NotNull(service.Dependency);
+        Assert.IsType<Dependency>(service.Dependency);
     }
 
     [Fact]
-    public void AddSingleton_ShouldNotRegisterService_WhenConditionIsFalse()
+    public void AddMetaInject_Should_NotModify_NonInjectableService()
     {
         // Arrange
-        var services = new ServiceCollection();
-        var condition = false;
+        _services = new ServiceCollection();
+        _services.AddTransient<INonInjectableService, NonInjectableService>();
+        using var provider = _services.BuildServiceProvider();
 
         // Act
-        services.AddSingleton<ITestService, TestService>(() => condition);
-
-        var serviceProvider = services.BuildServiceProvider();
-        var service = serviceProvider.GetService<ITestService>();
-
-        // Assert
-        Assert.Null(service);
-    }
-
-    [Fact]
-    public void AddTransient_ShouldRegisterService_WhenConditionIsTrue()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-        var condition = true;
-
-        // Act
-        services.AddTransient<ITestService, TestService>(() => condition);
-
-        var serviceProvider = services.BuildServiceProvider();
-        var service = serviceProvider.GetService<ITestService>();
-
-        // Assert
+        var service = provider.GetService<INonInjectableService>();
         Assert.NotNull(service);
-        Assert.IsType<TestService>(service);
+        Assert.Null(service.Dependency);
     }
+}
 
-    [Fact]
-    public void AddTransient_ShouldNotRegisterService_WhenConditionIsFalse()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-        var condition = false;
+public interface IDependency {}
+public class Dependency : IDependency {}
 
-        // Act
-        services.AddTransient<ITestService, TestService>(() => condition);
+public interface IInjectableService
+{
+    IDependency Dependency { get; set; }
+}
 
-        var serviceProvider = services.BuildServiceProvider();
-        var service = serviceProvider.GetService<ITestService>();
+public class InjectableService : IInjectableService
+{
+    [MetaInject]
+    public virtual IDependency Dependency { get; set; } = null!;
+}
 
-        // Assert
-        Assert.Null(service);
-    }
+public interface INonInjectableService
+{
+    IDependency? Dependency { get; }
+}
 
-    [Fact]
-    public void AddScoped_ShouldNotRegisterDifferentImplementation_WhenConditionIsTrue()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-        var condition = true;
-
-        // Act
-        services.AddScoped<ITestService, TestService>(() => condition);
-        services.AddScoped<ITestService, OtherTestService>(() => !condition);
-
-        var serviceProvider = services.BuildServiceProvider();
-        var service = serviceProvider.GetService<ITestService>();
-
-        // Assert
-        Assert.NotNull(service);
-        Assert.IsType<TestService>(service);
-    }
+public class NonInjectableService : INonInjectableService
+{
+    public IDependency? Dependency { get; }
 }

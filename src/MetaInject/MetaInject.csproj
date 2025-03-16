@@ -34,9 +34,6 @@
       <None Update="Package\Content\MetaInject.ico.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Remove="Processors\**" />
-      <None Remove="Middlewares\**" />
-      <None Remove="Models\**" />
     </ItemGroup>
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />

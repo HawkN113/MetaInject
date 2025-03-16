@@ -3,15 +3,12 @@
 ![Nuget](https://img.shields.io/nuget/v/MetaInject?label=MetaInject)
 ![GitHub license](https://img.shields.io/github/license/HawkN113/MetaInject)
 
-| ![MetaInject](docs/img/MetaInject.png) | MetaInject is a simple and powerful Dependency Injection (DI) tool for .NET. With the `[MetaInject]` attribute, you can inject dependencies directly into properties or fields without needing a constructor. The `[MetaValidation]` attribute ensures that your DI setup is correct before the application starts. MetaInject works seamlessly with ASP.NET Core and other .NET projects, simplifying dependency management. It supports `.InjectMetaProperties()` extension to resolve DI inside the service. It also supports conditional service registration via `.AddTransient`, `.AddSingleton`, and `.AddScoped`. |
-|----------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ![MetaInject](docs/img/MetaInject.png) | MetaInject is a simple and powerful Dependency Injection (DI) tool for .NET. With the `[MetaInject]` attribute, you can inject dependencies directly into properties or fields without needing a constructor. MetaInject works seamlessly with ASP.NET Core and other .NET projects, simplifying dependency management.  |
+|----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 ## Features
 
 - **[MetaInject] attribute**: Enables property injection, allowing dependencies to be injected into properties instead of using constructors.
-- **[MetaValidation] attribute**: Ensures all dependencies are properly injected during application startup.
-- **.InjectMetaProperties() extension**: Allows DI resolution inside the service.
-- **Conditional service registration**: Supports dynamic conditions for `.AddTransient`, `.AddSingleton`, and `.AddScoped` services.
 - **Seamless Web API Integration**: Fully compatible with ASP.NET Core and other .NET-based projects.
 
 ---
@@ -47,7 +44,6 @@ Use the following namespaces:
 ```csharp
 using MetaInject.Core.Attributes;
 using MetaInject.Extensions;
-using MetaInject.Middlewares;
 ```
 
 ### Scenario: Injecting dependencies without a constructor
@@ -80,47 +76,30 @@ public class ComplexService : IComplexService
 
 #### After MetaInject (property injection)
 
-With MetaInject, you can remove the constructor and inject dependencies directly into properties.
+With MetaInject, you can remove the constructor and inject dependencies directly into properties. The property must:
+- be **virtual**
+- have both a **getter** and a **setter**
 
 ```csharp
 public class ComplexService : IComplexService
 {
-    [MetaInject] public required IUserService UserService { get; init; }
-    [MetaInject] public required IAddressService AddressService { get; init; }
-    [MetaInject] public required INotesService NotesService { get; init; }
-    [MetaInject] public required IContractService ContractService { get; init; }
+    [MetaInject] public virtual required IUserService UserService { get; init; }
+    [MetaInject] public virtual required IAddressService AddressService { get; init; }
+    [MetaInject] public virtual required INotesService NotesService { get; init; }
+    [MetaInject] public virtual required IContractService ContractService { get; init; }
 }
 ```
-
-### Using [MetaValidation] for dependency validation
-
-If you want to ensure that the dependencies are correctly injected during startup, you can use the `[MetaValidation]` attribute. This attribute validates that all properties marked with `[MetaInject]` are correctly populated.
-
-```csharp
-[MetaValidation]
-public class ComplexService : IComplexService
-{
-    [MetaInject] public required IUserService UserService { get; init; }
-    [MetaInject] public required IAddressService AddressService { get; init; }
-    [MetaInject] public required INotesService NotesService { get; init; }
-    [MetaInject] public required IContractService ContractService { get; init; }
-}
-```
-
-### Property Injection with fields
-
-MetaInject also supports injecting dependencies into readonly fields. This approach can be useful when you need to ensure immutability.
+or 
 
 ```csharp
 public class ComplexService : IComplexService
 {
-    [MetaInject] public readonly IUserService UserService;
-    [MetaInject] public readonly IAddressService AddressService;
-    [MetaInject] public readonly INotesService NotesService;
-    [MetaInject] public readonly IContractService ContractService;
+    [MetaInject] public virtual IUserService UserService { get; set; }
+    [MetaInject] public virtual IAddressService AddressService { get; set; }
+    [MetaInject] public virtual INotesService NotesService { get; set; }
+    [MetaInject] public virtual IContractService ContractService { get; set; }
 }
 ```
-
 ---
 
 ## Use in Minimal API .NET 8
@@ -128,7 +107,7 @@ public class ComplexService : IComplexService
 Use `.AddMetaInject()` for advanced DI functionality:
 
 ```csharp
-// Registering services with the DI container
+// Registering sample services with the DI container
 builder.Services.AddSingleton<IGreetingService, GreetingService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
@@ -141,48 +120,45 @@ builder.Services.AddScoped<IComplexPropertiesService, ComplexPropertiesService>(
 // Register MetaInject for advanced DI functionality (should be last in the order)
 builder.Services.AddMetaInject();
 ```
-
-Use `.UseMetaInject()` to enable DI functionality.
-
-Use `.UseMetaValidation()` to enable class validation during the DI process.
-
-Use `app.UseMiddleware<MetaInjectMiddleware>()` to resolve dependencies marked with the `[FromServices]` attribute in requests.
+Use the service in API:
 
 ```csharp
-var app = builder.Build();
-
-// Use MetaInject DI functionality (should be first in the order to register DI correctly)
-app.UseMetaInject();
-
-// Enable class validation during the DI process
-app.UseMetaValidation();
-
-// MetaInject middleware to resolve dependencies marked with [FromServices] attribute in requests
-app.UseMiddleware<MetaInjectMiddleware>();
+app.MapGet("api/app2/GetCurrentInfo", (IComplexPropertiesService service) =>
+    {
+        return Results.Ok(service.GetCurrentInfo());
+    })
+    .WithMetadata()
+    .WithTags("Properties implementation")
+    .WithDescription(
+        "Retrieves information using the [ComplexPropertiesService] implementation. The service uses 'virtual' properties injected with the [MetaInject] attribute.")
+    .WithOpenApi();
 ```
 
 ---
 
-## Conditional service registration in MetaInject
+## Use in console application .NET 8
 
-MetaInject allows for conditional service registration in your Dependency Injection container. You can register services such as Transient, Singleton, or Scoped based on dynamic conditions.
-
-### Conditional Service registration methods
-
-#### AddScoped with condition
+Use `.AddMetaInject()` for advanced DI functionality:
 
 ```csharp
-services.AddScoped<IUserService, UserService>(() => DateTime.Now.DayOfWeek == DayOfWeek.Monday);
+using var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices(services =>
+    {
+        // Registering sample services with the DI container
+        services.AddSingleton<ILoggerService, LoggerService>();
+        services.AddScoped<IAddressService, AddressService>();
+        services.AddTransient<IUserService, UserService>();
+        services.AddTransient<IClientService, ClientService>();
+        
+        // Register MetaInject for advanced DI functionality (should be last in the order)
+        services.AddMetaInject();
+    })
+    .Build();
 ```
 
-#### AddSingleton with condition
+Use the service in console application:
 
 ```csharp
-services.AddSingleton<IAppSettings, AppSettings>(() => Environment.GetEnvironmentVariable("APP_MODE") == "Production");
-```
-
-#### AddTransient with condition
-
-```csharp
-services.AddTransient<ILogger, ConsoleLogger>(() => Debugger.IsAttached);
+    var userService = host.Services
+        .GetRequiredService<IUserService>();
 ```

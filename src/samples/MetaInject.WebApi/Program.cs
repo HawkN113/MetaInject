@@ -1,7 +1,6 @@
 using MetaInject.Extensions;
 using MetaInject.WebApi.Services;
 using MetaInject.WebApi.Services.Abstraction;
-using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,7 +46,7 @@ app.MapGet("api/app0/GetCurrentInfo", (IComplexService service) =>
         "Retrieves information using the default [ComplexService] implementation, which is configured with constructor parameters for dependency injection.")
     .WithOpenApi();
 
-app.MapGet("api/app2/GetCurrentInfo", ([FromServices] IComplexPropertiesService service) =>
+app.MapGet("api/app2/GetCurrentInfo", (IComplexPropertiesService service) =>
     {
         return Results.Ok(service.GetCurrentInfo());
     })

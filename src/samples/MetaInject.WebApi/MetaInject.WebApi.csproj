@@ -7,13 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="MetaInject" Version="8.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.11"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
         <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <ProjectReference Include="..\..\MetaInject\MetaInject.csproj" />
     </ItemGroup>
 
 </Project>

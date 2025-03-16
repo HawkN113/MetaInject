@@ -8,7 +8,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>MetaInject is a simple and powerful Dependency Injection (DI) tool for .NET. With the `[MetaInject]` attribute, you can inject dependencies directly into properties or fields without needing a constructor. MetaInject works seamlessly with ASP.NET Core and other .NET projects, simplifying dependency management.</description>
         <summary>Flexible dependency injection for .NET with attribute-based instance management.</summary>
-        <tags>.net8 DependencyInjection DI .NET Core ASP.NET MetaInject IoC</tags>
+        <tags>.net8 DependencyInjection dependency-injection DI .NET Core ASP.NET MetaInject IoC</tags>
         <repository type="git" url="https://github.com/HawkN113/MetaInject" branch="main" />
         <projectUrl>https://github.com/HawkN113/MetaInject</projectUrl>
         <license type="expression">MIT</license>
@@ -20,7 +20,9 @@
         </releaseNotes>
         <copyright>Copyright © 2025 Nikolay Selyutin (HawkN113)</copyright>
         <dependencies>
-            <group targetFramework="net8.0" />
+            <group targetFramework="net8.0">
+                <dependency id="Castle.Core" version="5.2.1" />    
+            </group>
         </dependencies>
     </metadata>
     <files>

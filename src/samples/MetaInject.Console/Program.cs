@@ -7,11 +7,13 @@ using Microsoft.Extensions.Hosting;
 using var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
+        // Registering sample services with the DI container
         services.AddSingleton<ILoggerService, LoggerService>();
         services.AddScoped<IAddressService, AddressService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<IClientService, ClientService>();
-
+        
+        // Register MetaInject for advanced DI functionality (should be last in the order)
         services.AddMetaInject();
     })
     .Build();
